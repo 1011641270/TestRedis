@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:p="http://www.springframework.org/schema/p"
+	xmlns:context="http://www.springframework.org/schema/context"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans
+        http://www.springframework.org/schema/beans/spring-beans-3.0.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context-3.0.xsd">
+	<context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true"/>
+
+	<bean name="notaryCacheService"
+		class="com.tian.redis.NotaryCacheServiceImpl">
+		<property name="cacheTimeout" value="1" />
+		<property name="redisClient" ref="cacheRedisClient" />
+	</bean>
+	
+	<bean id="cacheRedisConnectionFactory"
+		class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory"
+		destroy-method="destroy">
+		<property name="hostName" value="${redis.ip}" />
+		<property name="port" value="${redis.port}" />
+		<property name="timeout" value="${redis.timeout}" />
+		<property name="usePool" value="true" />
+		<property name="database" value="1" />
+		<!-- <property name="password" value="${redis.passwd}"/> -->
+	</bean>
+
+	<bean id="cacheRedisTemplate" class="org.springframework.data.redis.core.StringRedisTemplate">
+		<property name="connectionFactory" ref="cacheRedisConnectionFactory" />
+	</bean>
+
+	<bean id="cacheRedisClient" class="com.tian.redis.RedisClient">
+		<property name="redisTemplate" ref="cacheRedisTemplate" />
+	</bean>
+
+</beans>
